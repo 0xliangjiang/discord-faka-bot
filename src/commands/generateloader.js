@@ -1,5 +1,6 @@
 const { EmbedBuilder, MessageFlags } = require('discord.js');
 const { ResellerApiError } = require('../services/resellerApi');
+const { getPermissionDenial } = require('../permissions');
 
 async function sendPrivateResponse(interaction, payload) {
   if (interaction.deferred || interaction.replied) {
@@ -26,11 +27,12 @@ function buildLoaderEmbed(loader, username) {
     );
 }
 
-function createGenerateLoaderCommand({ allowedUserIds, resellerApi, auditLogger = { log: async () => {} } }) {
-  if (!Array.isArray(allowedUserIds)) {
-    throw new Error('allowedUserIds must be an array');
-  }
-
+function createGenerateLoaderCommand({
+  allowedUserIds = [],
+  allowedChannelIds = [],
+  resellerApi,
+  auditLogger = { log: async () => {} },
+}) {
   if (!resellerApi) {
     throw new Error('resellerApi is required');
   }
@@ -64,14 +66,20 @@ function createGenerateLoaderCommand({ allowedUserIds, resellerApi, auditLogger 
         targetUserId: null,
       };
 
-      if (!allowedUserIds.includes(interaction.user.id)) {
+      const permissionDenial = getPermissionDenial({
+        interaction,
+        allowedUserIds,
+        allowedChannelIds,
+      });
+
+      if (permissionDenial) {
         await auditLogger.log({
           ...baseAuditEvent,
-          outcome: 'unauthorized',
-          errorMessage: 'Unauthorized Discord user',
+          outcome: permissionDenial.outcome,
+          errorMessage: permissionDenial.errorMessage,
         });
         await sendPrivateResponse(interaction, {
-          content: '你没有权限使用这个指令。',
+          content: permissionDenial.content,
         });
         return;
       }

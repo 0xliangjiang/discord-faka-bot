@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 
 const { loadConfig } = require('../src/config');
 
-test('loadConfig parses env vars and allowed Discord user IDs', () => {
+test('loadConfig parses env vars and allowed Discord user/channel IDs', () => {
   const config = loadConfig({
     DISCORD_TOKEN: 'bot-token',
     DISCORD_CLIENT_ID: 'client-id',
@@ -11,6 +11,7 @@ test('loadConfig parses env vars and allowed Discord user IDs', () => {
     RESELLER_API_KEY: 'api-key',
     RESELLER_API_BASE_URL: 'https://noaserver.com/resellerApi',
     ALLOWED_DISCORD_USER_IDS: '111, 222 ,333',
+    ALLOWED_DISCORD_CHANNEL_IDS: '444, 555 ,666',
     AUDIT_LOG_FILE_PATH: 'logs/audit.log',
     GENERATE_LOADER_TIMEOUT_MS: '360000',
   });
@@ -22,6 +23,7 @@ test('loadConfig parses env vars and allowed Discord user IDs', () => {
     resellerApiKey: 'api-key',
     resellerApiBaseUrl: 'https://noaserver.com/resellerApi',
     allowedDiscordUserIds: ['111', '222', '333'],
+    allowedDiscordChannelIds: ['444', '555', '666'],
     auditLogFilePath: 'logs/audit.log',
     generateLoaderTimeoutMs: 360000,
   });
@@ -30,7 +32,32 @@ test('loadConfig parses env vars and allowed Discord user IDs', () => {
 test('loadConfig throws when required env vars are missing', () => {
   assert.throws(
     () => loadConfig({}),
-    /Missing required environment variables: DISCORD_TOKEN, DISCORD_CLIENT_ID, DISCORD_GUILD_ID, RESELLER_API_KEY, ALLOWED_DISCORD_USER_IDS/,
+    /Missing required environment variables: DISCORD_TOKEN, DISCORD_CLIENT_ID, DISCORD_GUILD_ID, RESELLER_API_KEY/,
+  );
+});
+
+test('loadConfig allows channel-only permissions when user IDs are omitted', () => {
+  const config = loadConfig({
+    DISCORD_TOKEN: 'bot-token',
+    DISCORD_CLIENT_ID: 'client-id',
+    DISCORD_GUILD_ID: 'guild-id',
+    RESELLER_API_KEY: 'api-key',
+    ALLOWED_DISCORD_CHANNEL_IDS: '444,555',
+  });
+
+  assert.deepEqual(config.allowedDiscordUserIds, []);
+  assert.deepEqual(config.allowedDiscordChannelIds, ['444', '555']);
+});
+
+test('loadConfig requires at least one permission allowlist', () => {
+  assert.throws(
+    () => loadConfig({
+      DISCORD_TOKEN: 'bot-token',
+      DISCORD_CLIENT_ID: 'client-id',
+      DISCORD_GUILD_ID: 'guild-id',
+      RESELLER_API_KEY: 'api-key',
+    }),
+    /Configure at least one of ALLOWED_DISCORD_USER_IDS or ALLOWED_DISCORD_CHANNEL_IDS/,
   );
 });
 
@@ -43,6 +70,7 @@ test('loadConfig uses defaults for optional settings when omitted', () => {
     ALLOWED_DISCORD_USER_IDS: '111',
   });
 
+  assert.deepEqual(config.allowedDiscordChannelIds, []);
   assert.equal(config.resellerApiBaseUrl, 'https://noaserver.com/resellerApi');
   assert.equal(config.auditLogFilePath, 'logs/audit.log');
   assert.equal(config.generateLoaderTimeoutMs, 360000);

@@ -6,7 +6,7 @@
 
 - Slash 指令：`/resethwid username:<用户名>`
 - Slash 指令：`/generateloader [username:<用户名>]`
-- 仅允许 `.env` 中配置的 Discord 用户 ID 使用
+- 支持按 Discord 用户 ID、频道 ID 控制指令权限
 - 所有回复均为 `ephemeral`
 - `resethwid` 自动先查用户名，再调用 `resetHwid`
 - `generateloader` 支持指定用户名生成专属加载器，或不带参数生成通用加载器
@@ -33,9 +33,17 @@ cp .env.example .env
 - `DISCORD_GUILD_ID`：测试服务器 ID
 - `RESELLER_API_KEY`：你的经销商 API Key
 - `RESELLER_API_BASE_URL`：默认即可
-- `ALLOWED_DISCORD_USER_IDS`：允许使用命令的 Discord 用户 ID，多个逗号分隔
+- `ALLOWED_DISCORD_USER_IDS`：允许使用命令的 Discord 用户 ID，多个逗号分隔；不配置时不限制用户
+- `ALLOWED_DISCORD_CHANNEL_IDS`：允许使用命令的 Discord 频道 ID，多个逗号分隔；不配置时不限制频道
 - `AUDIT_LOG_FILE_PATH`：审计日志文件路径，默认 `logs/audit.log`
 - `GENERATE_LOADER_TIMEOUT_MS`：生成加载器接口超时，默认 `360000`（6 分钟）
+
+权限规则：
+
+- 只配置 `ALLOWED_DISCORD_USER_IDS`：只有指定用户可在任意频道使用
+- 只配置 `ALLOWED_DISCORD_CHANNEL_IDS`：指定频道内所有人都可使用，其他频道不可使用
+- 两者都配置：必须同时满足用户和频道白名单
+- 两者都不配置：启动时报错，避免机器人完全开放
 
 3. 安装依赖：
 

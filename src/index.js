@@ -21,11 +21,13 @@ async function main() {
   const commands = [
     createResetHwidCommand({
       allowedUserIds: config.allowedDiscordUserIds,
+      allowedChannelIds: config.allowedDiscordChannelIds,
       resellerApi,
       auditLogger,
     }),
     createGenerateLoaderCommand({
       allowedUserIds: config.allowedDiscordUserIds,
+      allowedChannelIds: config.allowedDiscordChannelIds,
       resellerApi,
       auditLogger,
     }),

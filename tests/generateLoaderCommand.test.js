@@ -5,13 +5,14 @@ const { EmbedBuilder, MessageFlags } = require('discord.js');
 const { createGenerateLoaderCommand } = require('../src/commands/generateloader');
 const { ResellerApiError } = require('../src/services/resellerApi');
 
-function createInteraction(username, userId = '123456', tag = 'admin#0001') {
+function createInteraction(username, userId = '123456', tag = 'admin#0001', channelId = 'channel-1') {
   const replies = [];
   const deferredReplies = [];
   const editedReplies = [];
 
   return {
     user: { id: userId, tag },
+    channelId,
     options: {
       getString(name, required) {
         assert.equal(name, 'username');
@@ -80,6 +81,39 @@ test('generateLoader rejects callers outside allowed Discord user IDs and audits
     outcome: 'unauthorized',
     errorMessage: 'Unauthorized Discord user',
   }]);
+});
+
+test('generateLoader allows any caller in an allowed channel when user IDs are not configured', async () => {
+  const interaction = createInteraction(null, 'any-user', 'user#0001', 'allowed-channel');
+  const auditEvents = [];
+  const command = createGenerateLoaderCommand({
+    allowedUserIds: [],
+    allowedChannelIds: ['allowed-channel'],
+    resellerApi: {
+      async getUserIdByUsername() {
+        throw new Error('should not be called');
+      },
+      async generateLoaderForUserId() {
+        throw new Error('should not be called');
+      },
+      async generateGenericLoader() {
+        return {
+          downloadUrl: 'https://example.com/generic.zip',
+          zipPassword: 'generic-secret',
+          version: '2.0.0',
+          expiresIn: '1 hour',
+        };
+      },
+    },
+    auditLogger: { async log(event) { auditEvents.push(event); } },
+  });
+
+  await command.execute(interaction);
+
+  assert.deepEqual(interaction.deferredReplies, [{ flags: MessageFlags.Ephemeral }]);
+  assert.deepEqual(interaction.replies, []);
+  assert.equal(interaction.editedReplies.length, 1);
+  assert.equal(auditEvents[0].outcome, 'success');
 });
 
 test('generateLoader resolves username to userId and returns loader details in an embed', async () => {

@@ -10,13 +10,23 @@ function parsePositiveInteger(value, keyName) {
   return parsed;
 }
 
+function parseIdList(value) {
+  if (!value) {
+    return [];
+  }
+
+  return value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
 function loadConfig(env = process.env) {
   const requiredKeys = [
     'DISCORD_TOKEN',
     'DISCORD_CLIENT_ID',
     'DISCORD_GUILD_ID',
     'RESELLER_API_KEY',
-    'ALLOWED_DISCORD_USER_IDS',
   ];
 
   const missingKeys = requiredKeys.filter((key) => {
@@ -28,13 +38,11 @@ function loadConfig(env = process.env) {
     throw new Error(`Missing required environment variables: ${missingKeys.join(', ')}`);
   }
 
-  const allowedDiscordUserIds = env.ALLOWED_DISCORD_USER_IDS
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean);
+  const allowedDiscordUserIds = parseIdList(env.ALLOWED_DISCORD_USER_IDS);
+  const allowedDiscordChannelIds = parseIdList(env.ALLOWED_DISCORD_CHANNEL_IDS);
 
-  if (allowedDiscordUserIds.length === 0) {
-    throw new Error('ALLOWED_DISCORD_USER_IDS must contain at least one Discord user ID');
+  if (allowedDiscordUserIds.length === 0 && allowedDiscordChannelIds.length === 0) {
+    throw new Error('Configure at least one of ALLOWED_DISCORD_USER_IDS or ALLOWED_DISCORD_CHANNEL_IDS');
   }
 
   const generateLoaderTimeoutMs = env.GENERATE_LOADER_TIMEOUT_MS
@@ -48,6 +56,7 @@ function loadConfig(env = process.env) {
     resellerApiKey: env.RESELLER_API_KEY.trim(),
     resellerApiBaseUrl: (env.RESELLER_API_BASE_URL || DEFAULT_RESELLER_API_BASE_URL).trim(),
     allowedDiscordUserIds,
+    allowedDiscordChannelIds,
     auditLogFilePath: (env.AUDIT_LOG_FILE_PATH || DEFAULT_AUDIT_LOG_FILE_PATH).trim(),
     generateLoaderTimeoutMs,
   };

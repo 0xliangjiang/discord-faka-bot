@@ -5,13 +5,14 @@ const { MessageFlags } = require('discord.js');
 const { createResetHwidCommand } = require('../src/commands/resethwid');
 const { ResellerApiError } = require('../src/services/resellerApi');
 
-function createInteraction(username, userId = '123456', tag = 'admin#0001') {
+function createInteraction(username, userId = '123456', tag = 'admin#0001', channelId = 'channel-1') {
   const replies = [];
   const deferredReplies = [];
   const editedReplies = [];
 
   return {
     user: { id: userId, tag },
+    channelId,
     options: {
       getString(name, required) {
         assert.equal(name, 'username');
@@ -84,6 +85,85 @@ test('handler rejects callers outside allowed Discord user IDs and writes an aud
       errorMessage: 'Unauthorized Discord user',
       event: 'resethwid_attempt',
       outcome: 'unauthorized',
+      targetUserId: null,
+      targetUsername: 'yy1234',
+    },
+  ]);
+});
+
+test('handler allows any caller in an allowed channel when user IDs are not configured', async () => {
+  const interaction = createInteraction('yy1234', 'any-user', 'user#0001', 'allowed-channel');
+  const auditEvents = [];
+  const command = createResetHwidCommand({
+    allowedUserIds: [],
+    allowedChannelIds: ['allowed-channel'],
+    resellerApi: {
+      async getUserIdByUsername(username) {
+        assert.equal(username, 'yy1234');
+        return 7788;
+      },
+      async resetHwidByUserId(userId) {
+        assert.equal(userId, 7788);
+      },
+    },
+    auditLogger: {
+      async log(event) {
+        auditEvents.push(event);
+      },
+    },
+  });
+
+  await command.execute(interaction);
+
+  assert.deepEqual(interaction.deferredReplies, [{ flags: MessageFlags.Ephemeral }]);
+  assert.deepEqual(interaction.replies, []);
+  assert.deepEqual(interaction.editedReplies, [
+    {
+      content: '已成功解绑 yy1234 的 HWID',
+    },
+  ]);
+  assert.equal(auditEvents[0].outcome, 'success');
+});
+
+test('handler rejects allowed users outside allowed channels and writes an audit entry', async () => {
+  const interaction = createInteraction('yy1234', '10001', 'admin#0001', 'wrong-channel');
+  const auditEvents = [];
+  const command = createResetHwidCommand({
+    allowedUserIds: ['10001'],
+    allowedChannelIds: ['allowed-channel'],
+    resellerApi: {
+      async getUserIdByUsername() {
+        throw new Error('should not be called');
+      },
+      async resetHwidByUserId() {
+        throw new Error('should not be called');
+      },
+    },
+    auditLogger: {
+      async log(event) {
+        auditEvents.push(event);
+      },
+    },
+  });
+
+  await command.execute(interaction);
+
+  assert.deepEqual(interaction.deferredReplies, []);
+  assert.deepEqual(interaction.replies, [
+    {
+      flags: MessageFlags.Ephemeral,
+      content: '这个指令只能在指定频道使用。',
+    },
+  ]);
+  assert.deepEqual(interaction.editedReplies, []);
+  assert.deepEqual(auditEvents, [
+    {
+      actorDiscordTag: 'admin#0001',
+      actorDiscordUserId: '10001',
+      commandName: 'resethwid',
+      errorMessage: 'Unauthorized Discord channel',
+      event: 'resethwid_attempt',
+      outcome: 'unauthorized_channel',
       targetUserId: null,
       targetUsername: 'yy1234',
     },

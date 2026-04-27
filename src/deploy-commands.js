@@ -40,10 +40,12 @@ async function main() {
   const commandDefinitions = [
     createResetHwidCommand({
       allowedUserIds: config.allowedDiscordUserIds,
+      allowedChannelIds: config.allowedDiscordChannelIds,
       resellerApi: stubbedResellerApi,
     }).definition,
     createGenerateLoaderCommand({
       allowedUserIds: config.allowedDiscordUserIds,
+      allowedChannelIds: config.allowedDiscordChannelIds,
       resellerApi: stubbedResellerApi,
     }).definition,
   ];
