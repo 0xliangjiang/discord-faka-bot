@@ -11,6 +11,7 @@
 - `resethwid` 自动先查用户名，再调用 `resetHwid`
 - `generateloader` 支持指定用户名生成专属加载器，或不带参数生成通用加载器
 - 本地 JSON Lines 审计日志，默认写入 `logs/audit.log`
+- 可选 Discord 审计频道，同步推送所有操作结果
 
 ## 环境要求
 
@@ -36,6 +37,7 @@ cp .env.example .env
 - `ALLOWED_DISCORD_USER_IDS`：允许使用命令的 Discord 用户 ID，多个逗号分隔；不配置时不限制用户
 - `ALLOWED_DISCORD_CHANNEL_IDS`：允许使用命令的 Discord 频道 ID，多个逗号分隔；不配置时不限制频道
 - `AUDIT_LOG_FILE_PATH`：审计日志文件路径，默认 `logs/audit.log`
+- `AUDIT_CHANNEL_ID`：审计频道 ID；不配置时只写本地日志
 - `GENERATE_LOADER_TIMEOUT_MS`：生成加载器接口超时，默认 `360000`（6 分钟）
 
 权限规则：
@@ -131,6 +133,8 @@ npm start
 ```bash
 tail -f logs/audit.log
 ```
+
+如果配置了 `AUDIT_CHANNEL_ID`，同一条审计事件也会发送到对应 Discord 频道。频道发送失败不会影响命令执行，错误会输出到机器人控制台。
 
 ## 测试
 

@@ -14,8 +14,15 @@ async function main() {
     apiKey: config.resellerApiKey,
     generateLoaderTimeoutMs: config.generateLoaderTimeoutMs,
   });
+
+  const client = new Client({
+    intents: [GatewayIntentBits.Guilds],
+  });
+
   const auditLogger = createAuditLogger({
     logFilePath: config.auditLogFilePath,
+    auditChannelId: config.auditChannelId,
+    discordClient: client,
   });
 
   const commands = [
@@ -34,13 +41,10 @@ async function main() {
   ];
   const commandMap = new Map(commands.map((command) => [command.definition.name, command]));
 
-  const client = new Client({
-    intents: [GatewayIntentBits.Guilds],
-  });
-
   client.once(Events.ClientReady, (readyClient) => {
     console.log(`Discord bot logged in as ${readyClient.user.tag}`);
     console.log(`Audit log file: ${config.auditLogFilePath}`);
+    console.log(`Audit channel: ${config.auditChannelId || 'disabled'}`);
     console.log(`Generate loader timeout: ${config.generateLoaderTimeoutMs}ms`);
   });
 

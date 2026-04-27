@@ -58,6 +58,7 @@ function loadConfig(env = process.env) {
     allowedDiscordUserIds,
     allowedDiscordChannelIds,
     auditLogFilePath: (env.AUDIT_LOG_FILE_PATH || DEFAULT_AUDIT_LOG_FILE_PATH).trim(),
+    auditChannelId: env.AUDIT_CHANNEL_ID?.trim() || null,
     generateLoaderTimeoutMs,
   };
 }

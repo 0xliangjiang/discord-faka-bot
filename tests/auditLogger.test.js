@@ -35,3 +35,44 @@ test('audit logger appends one JSON line per event and creates parent directory'
   assert.equal(entry.errorMessage, null);
   assert.match(entry.timestamp, /^\d{4}-\d{2}-\d{2}T/);
 });
+
+test('audit logger forwards events to configured Discord audit channel', async () => {
+  const sentMessages = [];
+  const fetchedChannelIds = [];
+  const logger = createAuditLogger({
+    logFilePath: path.join(os.tmpdir(), 'audit-forward-test.log'),
+    appendFile: async () => {},
+    mkdir: async () => {},
+    auditChannelId: '999888777',
+    discordClient: {
+      channels: {
+        fetch: async (channelId) => {
+          fetchedChannelIds.push(channelId);
+          return {
+            send: async (payload) => {
+              sentMessages.push(payload);
+            },
+          };
+        },
+      },
+    },
+  });
+
+  await logger.log({
+    event: 'generateloader_attempt',
+    actorDiscordUserId: '10001',
+    actorDiscordTag: 'admin#0001',
+    commandName: 'generateloader',
+    targetUsername: 'yy1234',
+    targetUserId: 7788,
+    outcome: 'success',
+    errorMessage: null,
+  });
+
+  assert.deepEqual(fetchedChannelIds, ['999888777']);
+  assert.equal(sentMessages.length, 1);
+  assert.match(sentMessages[0].content, /generateloader/);
+  assert.match(sentMessages[0].content, /admin#0001/);
+  assert.match(sentMessages[0].content, /yy1234/);
+  assert.match(sentMessages[0].content, /success/);
+});

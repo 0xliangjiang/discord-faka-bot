@@ -13,6 +13,7 @@ test('loadConfig parses env vars and allowed Discord user/channel IDs', () => {
     ALLOWED_DISCORD_USER_IDS: '111, 222 ,333',
     ALLOWED_DISCORD_CHANNEL_IDS: '444, 555 ,666',
     AUDIT_LOG_FILE_PATH: 'logs/audit.log',
+    AUDIT_CHANNEL_ID: '999888777',
     GENERATE_LOADER_TIMEOUT_MS: '360000',
   });
 
@@ -25,6 +26,7 @@ test('loadConfig parses env vars and allowed Discord user/channel IDs', () => {
     allowedDiscordUserIds: ['111', '222', '333'],
     allowedDiscordChannelIds: ['444', '555', '666'],
     auditLogFilePath: 'logs/audit.log',
+    auditChannelId: '999888777',
     generateLoaderTimeoutMs: 360000,
   });
 });
@@ -73,6 +75,7 @@ test('loadConfig uses defaults for optional settings when omitted', () => {
   assert.deepEqual(config.allowedDiscordChannelIds, []);
   assert.equal(config.resellerApiBaseUrl, 'https://noaserver.com/resellerApi');
   assert.equal(config.auditLogFilePath, 'logs/audit.log');
+  assert.equal(config.auditChannelId, null);
   assert.equal(config.generateLoaderTimeoutMs, 360000);
 });
 
