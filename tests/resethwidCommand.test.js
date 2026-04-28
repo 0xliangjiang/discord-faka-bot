@@ -69,14 +69,13 @@ test('handler rejects callers outside allowed Discord user IDs and writes an aud
 
   await command.execute(interaction);
 
-  assert.deepEqual(interaction.deferredReplies, []);
-  assert.deepEqual(interaction.replies, [
+  assert.deepEqual(interaction.deferredReplies, [{ flags: MessageFlags.Ephemeral }]);
+  assert.deepEqual(interaction.replies, []);
+  assert.deepEqual(interaction.editedReplies, [
     {
-      flags: MessageFlags.Ephemeral,
       content: '你没有权限使用这个指令。',
     },
   ]);
-  assert.deepEqual(interaction.editedReplies, []);
   assert.deepEqual(auditEvents, [
     {
       actorDiscordTag: 'admin#0001',
@@ -89,6 +88,37 @@ test('handler rejects callers outside allowed Discord user IDs and writes an aud
       targetUsername: 'yy1234',
     },
   ]);
+});
+
+test('handler acknowledges the interaction before permission audit work', async () => {
+  const interaction = createInteraction('yy1234', 'not-allowed');
+  const callOrder = [];
+  const originalDeferReply = interaction.deferReply;
+  interaction.deferReply = async function deferReply(payload) {
+    callOrder.push('defer');
+    return originalDeferReply.call(this, payload);
+  };
+
+  const command = createResetHwidCommand({
+    allowedUserIds: ['10001'],
+    resellerApi: {
+      async getUserIdByUsername() {
+        throw new Error('should not be called');
+      },
+      async resetHwidByUserId() {
+        throw new Error('should not be called');
+      },
+    },
+    auditLogger: {
+      async log() {
+        callOrder.push('audit');
+      },
+    },
+  });
+
+  await command.execute(interaction);
+
+  assert.deepEqual(callOrder, ['defer', 'audit']);
 });
 
 test('handler allows any caller in an allowed channel when user IDs are not configured', async () => {
@@ -148,14 +178,13 @@ test('handler rejects allowed users outside allowed channels and writes an audit
 
   await command.execute(interaction);
 
-  assert.deepEqual(interaction.deferredReplies, []);
-  assert.deepEqual(interaction.replies, [
+  assert.deepEqual(interaction.deferredReplies, [{ flags: MessageFlags.Ephemeral }]);
+  assert.deepEqual(interaction.replies, []);
+  assert.deepEqual(interaction.editedReplies, [
     {
-      flags: MessageFlags.Ephemeral,
       content: '这个指令只能在指定频道使用。',
     },
   ]);
-  assert.deepEqual(interaction.editedReplies, []);
   assert.deepEqual(auditEvents, [
     {
       actorDiscordTag: 'admin#0001',

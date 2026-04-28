@@ -42,6 +42,10 @@ function createResetHwidCommand({
       ],
     },
     async execute(interaction) {
+      await interaction.deferReply({
+        flags: MessageFlags.Ephemeral,
+      });
+
       const username = interaction.options.getString('username', true).trim();
       const baseAuditEvent = {
         event: 'resethwid_attempt',
@@ -69,10 +73,6 @@ function createResetHwidCommand({
         });
         return;
       }
-
-      await interaction.deferReply({
-        flags: MessageFlags.Ephemeral,
-      });
 
       let resolvedUserId = null;
 
