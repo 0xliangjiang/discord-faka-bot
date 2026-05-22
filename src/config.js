@@ -55,6 +55,8 @@ function loadConfig(env = process.env) {
     discordGuildId: env.DISCORD_GUILD_ID.trim(),
     resellerApiKey: env.RESELLER_API_KEY.trim(),
     resellerApiBaseUrl: (env.RESELLER_API_BASE_URL || DEFAULT_RESELLER_API_BASE_URL).trim(),
+    resetHwidApiBaseUrl: (env.RESET_HWID_API_BASE_URL || env.RESELLER_API_BASE_URL || DEFAULT_RESELLER_API_BASE_URL).trim(),
+    loaderBuildsApiBaseUrl: (env.LOADER_BUILDS_API_BASE_URL || env.RESET_HWID_API_BASE_URL || env.RESELLER_API_BASE_URL || DEFAULT_RESELLER_API_BASE_URL).trim(),
     allowedDiscordUserIds,
     allowedDiscordChannelIds,
     auditLogFilePath: (env.AUDIT_LOG_FILE_PATH || DEFAULT_AUDIT_LOG_FILE_PATH).trim(),

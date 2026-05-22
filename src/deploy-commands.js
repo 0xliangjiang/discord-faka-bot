@@ -32,7 +32,7 @@ async function main() {
     async generateLoaderForUserId() {
       throw new Error('resellerApi is not used during command deployment');
     },
-    async generateGenericLoader() {
+    async getActiveLicensesByUserId() {
       throw new Error('resellerApi is not used during command deployment');
     },
   };

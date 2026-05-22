@@ -5,11 +5,11 @@
 ## 功能
 
 - Slash 指令：`/resethwid username:<用户名>`
-- Slash 指令：`/generateloader [username:<用户名>]`
+- Slash 指令：`/generateloader username:<用户名>`
 - 支持按 Discord 用户 ID、频道 ID 控制指令权限
 - 所有回复均为 `ephemeral`
 - `resethwid` 自动先查用户名，再调用 `resetHwid`
-- `generateloader` 支持指定用户名生成专属加载器，或不带参数生成通用加载器
+- `generateloader` 按用户名创建一个新版 loader build
 - 本地 JSON Lines 审计日志，默认写入 `logs/audit.log`
 - 可选 Discord 审计频道，同步推送所有操作结果
 
@@ -33,7 +33,9 @@ cp .env.example .env
 - `DISCORD_CLIENT_ID`：Discord Application Client ID
 - `DISCORD_GUILD_ID`：测试服务器 ID
 - `RESELLER_API_KEY`：你的经销商 API Key
-- `RESELLER_API_BASE_URL`：默认即可
+- `RESELLER_API_BASE_URL`：旧版 Reseller API 地址，用于查用户和生成加载器
+- `RESET_HWID_API_BASE_URL`：新版解绑 HWID API 地址，例如 `https://playsharp.example.com/api/reseller/v1`；不配置时沿用 `RESELLER_API_BASE_URL`
+- `LOADER_BUILDS_API_BASE_URL`：新版 loader builds API 地址，例如 `https://playsharp.example.com/api/reseller/v1`；不配置时沿用 `RESET_HWID_API_BASE_URL`
 - `ALLOWED_DISCORD_USER_IDS`：允许使用命令的 Discord 用户 ID，多个逗号分隔；不配置时不限制用户
 - `ALLOWED_DISCORD_CHANNEL_IDS`：允许使用命令的 Discord 频道 ID，多个逗号分隔；不配置时不限制频道
 - `AUDIT_LOG_FILE_PATH`：审计日志文件路径，默认 `logs/audit.log`
@@ -75,24 +77,18 @@ npm start
 /resethwid username:yy1234
 ```
 
-生成指定用户的专属加载器：
+创建指定用户的加载器构建：
 
 ```text
 /generateloader username:yy1234
 ```
 
-生成通用加载器：
-
-```text
-/generateloader
-```
-
 `/generateloader` 成功时会以私有 Embed 卡片返回：
 
-- `下载链接`
-- `ZIP 密码`
-- `版本号`
-- `有效期`
+- `构建 ID`
+- `状态`
+- `创建时间`
+- `请求 ID`
 
 常见结果：
 

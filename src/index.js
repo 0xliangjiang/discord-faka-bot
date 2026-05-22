@@ -11,6 +11,8 @@ async function main() {
   const config = loadConfig();
   const resellerApi = createResellerApiClient({
     baseUrl: config.resellerApiBaseUrl,
+    resetHwidBaseUrl: config.resetHwidApiBaseUrl,
+    loaderBuildsBaseUrl: config.loaderBuildsApiBaseUrl,
     apiKey: config.resellerApiKey,
     generateLoaderTimeoutMs: config.generateLoaderTimeoutMs,
   });

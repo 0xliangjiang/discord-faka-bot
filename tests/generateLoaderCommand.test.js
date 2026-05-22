@@ -16,7 +16,7 @@ function createInteraction(username, userId = '123456', tag = 'admin#0001', chan
     options: {
       getString(name, required) {
         assert.equal(name, 'username');
-        assert.equal(required, false);
+        assert.equal(required, true);
         return username;
       },
     },
@@ -84,25 +84,28 @@ test('generateLoader rejects callers outside allowed Discord user IDs and audits
 });
 
 test('generateLoader allows any caller in an allowed channel when user IDs are not configured', async () => {
-  const interaction = createInteraction(null, 'any-user', 'user#0001', 'allowed-channel');
+  const interaction = createInteraction('yy1234', 'any-user', 'user#0001', 'allowed-channel');
   const auditEvents = [];
   const command = createGenerateLoaderCommand({
     allowedUserIds: [],
     allowedChannelIds: ['allowed-channel'],
     resellerApi: {
       async getUserIdByUsername() {
-        throw new Error('should not be called');
+        return 'user_123';
       },
       async generateLoaderForUserId() {
-        throw new Error('should not be called');
-      },
-      async generateGenericLoader() {
         return {
-          downloadUrl: 'https://example.com/generic.zip',
-          zipPassword: 'generic-secret',
-          version: '2.0.0',
-          expiresIn: '1 hour',
+          id: 'item_123',
+          status: 'READY',
+          loaderVersion: '342',
+          downloadUrl: 'https://example.com/loader.zip',
+          zipPassword: 'zip-secret',
+          downloadExpiresAt: '2026-05-22T03:47:17.836Z',
+          createdAt: '2026-05-21T17:00:00.000Z',
         };
+      },
+      async getActiveLicensesByUserId() {
+        return [{ id: 'license_123', status: 'ACTIVE' }];
       },
     },
     auditLogger: { async log(event) { auditEvents.push(event); } },
@@ -129,14 +132,19 @@ test('generateLoader resolves username to userId and returns loader details in a
       async generateLoaderForUserId(userId) {
         assert.equal(userId, 7788);
         return {
+          id: 'item_123',
+          status: 'READY',
+          loaderVersion: '342',
           downloadUrl: 'https://example.com/loader.zip',
-          zipPassword: 'secret',
-          version: '1.2.3',
-          expiresIn: '1 hour',
+          zipPassword: 'zip-secret',
+          downloadExpiresAt: '2026-05-22T03:47:17.836Z',
+          createdAt: '2026-05-21T17:00:00.000Z',
+          requestId: 'req_01HXAMPLE123456789',
         };
       },
-      async generateGenericLoader() {
-        throw new Error('should not be called');
+      async getActiveLicensesByUserId(userId) {
+        assert.equal(userId, 7788);
+        return [{ id: 'license_123', status: 'ACTIVE' }];
       },
     },
     auditLogger: { async log(event) { auditEvents.push(event); } },
@@ -151,13 +159,15 @@ test('generateLoader resolves username to userId and returns loader details in a
   assert.equal(interaction.editedReplies[0].embeds.length, 1);
   assert.deepEqual(normalizeEmbed(interaction.editedReplies[0].embeds[0]), {
     title: '加载器生成成功',
-    description: '已为用户 yy1234 生成专属加载器',
+    description: '已为用户 yy1234 创建加载器构建',
     color: 0x57f287,
     fields: [
       { name: '下载链接', value: 'https://example.com/loader.zip' },
-      { name: 'ZIP 密码', value: 'secret', inline: true },
-      { name: '版本号', value: '1.2.3', inline: true },
-      { name: '有效期', value: '1 hour', inline: true },
+      { name: 'ZIP 密码', value: 'zip-secret', inline: true },
+      { name: '版本号', value: '342', inline: true },
+      { name: '构建 ID', value: 'item_123' },
+      { name: '状态', value: 'READY', inline: true },
+      { name: '过期时间', value: '2026-05-22T03:47:17.836Z', inline: true },
     ],
   });
   assert.deepEqual(auditEvents, [{
@@ -167,56 +177,6 @@ test('generateLoader resolves username to userId and returns loader details in a
     commandName: 'generateloader',
     targetUsername: 'yy1234',
     targetUserId: 7788,
-    outcome: 'success',
-    errorMessage: null,
-  }]);
-});
-
-test('generateLoader supports generic loader mode without username and returns an embed', async () => {
-  const interaction = createInteraction(null, '10001');
-  const auditEvents = [];
-  const command = createGenerateLoaderCommand({
-    allowedUserIds: ['10001'],
-    resellerApi: {
-      async getUserIdByUsername() {
-        throw new Error('should not be called');
-      },
-      async generateLoaderForUserId() {
-        throw new Error('should not be called');
-      },
-      async generateGenericLoader() {
-        return {
-          downloadUrl: 'https://example.com/generic.zip',
-          zipPassword: 'generic-secret',
-          version: '2.0.0',
-          expiresIn: '1 hour',
-        };
-      },
-    },
-    auditLogger: { async log(event) { auditEvents.push(event); } },
-  });
-
-  await command.execute(interaction);
-
-  assert.equal(interaction.editedReplies.length, 1);
-  assert.deepEqual(normalizeEmbed(interaction.editedReplies[0].embeds[0]), {
-    title: '加载器生成成功',
-    description: '已生成通用加载器',
-    color: 0x57f287,
-    fields: [
-      { name: '下载链接', value: 'https://example.com/generic.zip' },
-      { name: 'ZIP 密码', value: 'generic-secret', inline: true },
-      { name: '版本号', value: '2.0.0', inline: true },
-      { name: '有效期', value: '1 hour', inline: true },
-    ],
-  });
-  assert.deepEqual(auditEvents, [{
-    event: 'generateloader_attempt',
-    actorDiscordUserId: '10001',
-    actorDiscordTag: 'admin#0001',
-    commandName: 'generateloader',
-    targetUsername: null,
-    targetUserId: null,
     outcome: 'success',
     errorMessage: null,
   }]);
@@ -235,7 +195,7 @@ test('generateLoader reports when username cannot be found', async () => {
       async generateLoaderForUserId() {
         throw new Error('should not be called');
       },
-      async generateGenericLoader() {
+      async getActiveLicensesByUserId() {
         throw new Error('should not be called');
       },
     },
@@ -271,8 +231,8 @@ test('generateLoader returns reseller API error messages privately', async () =>
       async generateLoaderForUserId() {
         throw new ResellerApiError('用户无有效订阅', 400);
       },
-      async generateGenericLoader() {
-        throw new Error('should not be called');
+      async getActiveLicensesByUserId() {
+        return [{ id: 'license_123', status: 'ACTIVE' }];
       },
     },
     auditLogger: { async log(event) { auditEvents.push(event); } },
@@ -290,6 +250,43 @@ test('generateLoader returns reseller API error messages privately', async () =>
     commandName: 'generateloader',
     targetUsername: 'yy1234',
     targetUserId: 7788,
+    outcome: 'api_error',
+    errorMessage: '用户无有效订阅',
+  }]);
+});
+
+test('generateLoader reports when user has no active licenses before creating a loader build', async () => {
+  const interaction = createInteraction('aha666', '10001');
+  const auditEvents = [];
+  const command = createGenerateLoaderCommand({
+    allowedUserIds: ['10001'],
+    resellerApi: {
+      async getUserIdByUsername() {
+        return 'user_123';
+      },
+      async getActiveLicensesByUserId(userId) {
+        assert.equal(userId, 'user_123');
+        return [];
+      },
+      async generateLoaderForUserId() {
+        throw new Error('should not be called');
+      },
+    },
+    auditLogger: { async log(event) { auditEvents.push(event); } },
+  });
+
+  await command.execute(interaction);
+
+  assert.deepEqual(interaction.editedReplies, [{
+    content: '生成失败：用户无有效订阅',
+  }]);
+  assert.deepEqual(auditEvents, [{
+    event: 'generateloader_attempt',
+    actorDiscordUserId: '10001',
+    actorDiscordTag: 'admin#0001',
+    commandName: 'generateloader',
+    targetUsername: 'aha666',
+    targetUserId: 'user_123',
     outcome: 'api_error',
     errorMessage: '用户无有效订阅',
   }]);
