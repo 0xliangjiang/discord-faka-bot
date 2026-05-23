@@ -14,6 +14,7 @@ function createResellerApiClient({
   resetHwidBaseUrl = baseUrl,
   loaderBuildsBaseUrl = resetHwidBaseUrl,
   apiKey,
+  apiVersion = '2026-05-22.6',
   fetchImpl = globalThis.fetch,
   generateLoaderTimeoutMs = 360000,
   idempotencyKeyFactory = randomUUID,
@@ -34,6 +35,10 @@ function createResellerApiClient({
     throw new Error('RESELLER_API_KEY is required');
   }
 
+  if (!apiVersion) {
+    throw new Error('PLAYSHARP_RESELLER_API_VERSION is required');
+  }
+
   if (typeof fetchImpl !== 'function') {
     throw new Error('A fetch implementation is required');
   }
@@ -44,6 +49,14 @@ function createResellerApiClient({
 
   function buildUrl(urlBase, path) {
     return `${urlBase.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`;
+  }
+
+  function authorizationHeaders(extraHeaders = {}) {
+    return {
+      Authorization: `Bearer ${apiKey}`,
+      'x-playsharp-reseller-api-version': apiVersion,
+      ...extraHeaders,
+    };
   }
 
   async function post(payload, extraOptions = {}) {
@@ -76,10 +89,9 @@ function createResellerApiClient({
     const endpoint = `/customers/${encodeURIComponent(userId)}/hwid`;
     const response = await fetchImpl(buildUrl(resetHwidBaseUrl, endpoint), {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
+      headers: authorizationHeaders({
         'Idempotency-Key': idempotencyKeyFactory(),
-      },
+      }),
     });
 
     let data;
@@ -107,11 +119,10 @@ function createResellerApiClient({
   async function postJsonMutation(urlBase, endpoint, requestBody, extraOptions = {}) {
     const response = await fetchImpl(buildUrl(urlBase, endpoint), {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
+      headers: authorizationHeaders({
         'Content-Type': 'application/json',
         'Idempotency-Key': idempotencyKeyFactory(),
-      },
+      }),
       body: JSON.stringify(requestBody),
       ...extraOptions,
     });
@@ -137,10 +148,9 @@ function createResellerApiClient({
   async function postMutation(urlBase, endpoint, extraOptions = {}) {
     const response = await fetchImpl(buildUrl(urlBase, endpoint), {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
+      headers: authorizationHeaders({
         'Idempotency-Key': idempotencyKeyFactory(),
-      },
+      }),
       ...extraOptions,
     });
 
@@ -165,9 +175,7 @@ function createResellerApiClient({
   async function getJson(urlBase, endpoint) {
     const response = await fetchImpl(buildUrl(urlBase, endpoint), {
       method: 'GET',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-      },
+      headers: authorizationHeaders(),
     });
 
     let data;

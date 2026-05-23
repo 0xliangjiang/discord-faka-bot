@@ -14,6 +14,7 @@ async function main() {
     resetHwidBaseUrl: config.resetHwidApiBaseUrl,
     loaderBuildsBaseUrl: config.loaderBuildsApiBaseUrl,
     apiKey: config.resellerApiKey,
+    apiVersion: config.playsharpResellerApiVersion,
     generateLoaderTimeoutMs: config.generateLoaderTimeoutMs,
   });
 

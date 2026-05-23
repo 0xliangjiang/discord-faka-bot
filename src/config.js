@@ -1,6 +1,7 @@
 const DEFAULT_RESELLER_API_BASE_URL = 'https://noaserver.com/resellerApi';
 const DEFAULT_AUDIT_LOG_FILE_PATH = 'logs/audit.log';
 const DEFAULT_GENERATE_LOADER_TIMEOUT_MS = 360000;
+const DEFAULT_PLAYSHARP_RESELLER_API_VERSION = '2026-05-22.6';
 
 function parsePositiveInteger(value, keyName) {
   const parsed = Number.parseInt(value, 10);
@@ -57,6 +58,7 @@ function loadConfig(env = process.env) {
     resellerApiBaseUrl: (env.RESELLER_API_BASE_URL || DEFAULT_RESELLER_API_BASE_URL).trim(),
     resetHwidApiBaseUrl: (env.RESET_HWID_API_BASE_URL || env.RESELLER_API_BASE_URL || DEFAULT_RESELLER_API_BASE_URL).trim(),
     loaderBuildsApiBaseUrl: (env.LOADER_BUILDS_API_BASE_URL || env.RESET_HWID_API_BASE_URL || env.RESELLER_API_BASE_URL || DEFAULT_RESELLER_API_BASE_URL).trim(),
+    playsharpResellerApiVersion: (env.PLAYSHARP_RESELLER_API_VERSION || DEFAULT_PLAYSHARP_RESELLER_API_VERSION).trim(),
     allowedDiscordUserIds,
     allowedDiscordChannelIds,
     auditLogFilePath: (env.AUDIT_LOG_FILE_PATH || DEFAULT_AUDIT_LOG_FILE_PATH).trim(),
@@ -68,6 +70,7 @@ function loadConfig(env = process.env) {
 module.exports = {
   DEFAULT_AUDIT_LOG_FILE_PATH,
   DEFAULT_GENERATE_LOADER_TIMEOUT_MS,
+  DEFAULT_PLAYSHARP_RESELLER_API_VERSION,
   DEFAULT_RESELLER_API_BASE_URL,
   loadConfig,
 };

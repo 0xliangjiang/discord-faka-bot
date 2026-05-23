@@ -8,6 +8,7 @@ test('getUserIdByUsername returns a user id from reseller API customers lookup',
   const client = createResellerApiClient({
     baseUrl: 'https://playsharp.example.com/api/reseller/v1',
     apiKey: 'test-key',
+    apiVersion: '2026-05-22.6',
     fetchImpl: async (url, options) => {
       calls.push({ url, options });
       return {
@@ -36,6 +37,7 @@ test('getUserIdByUsername returns a user id from reseller API customers lookup',
   assert.equal(calls[0].options.method, 'GET');
   assert.deepEqual(calls[0].options.headers, {
     Authorization: 'Bearer test-key',
+    'x-playsharp-reseller-api-version': '2026-05-22.6',
   });
   assert.equal(calls[0].options.body, undefined);
   assert.equal(calls[0].options.signal, undefined);
@@ -45,6 +47,7 @@ test('getUserIdByUsername returns null when reseller API returns no customers', 
   const client = createResellerApiClient({
     baseUrl: 'https://playsharp.example.com/api/reseller/v1',
     apiKey: 'test-key',
+    apiVersion: '2026-05-22.6',
     fetchImpl: async () => ({
       ok: true,
       status: 200,
@@ -67,6 +70,7 @@ test('resetHwidByUserId posts to the customer HWID endpoint with bearer auth and
   const client = createResellerApiClient({
     baseUrl: 'https://playsharp.example.com/api/reseller/v1',
     apiKey: 'test-key',
+    apiVersion: '2026-05-22.6',
     idempotencyKeyFactory: () => 'fixed-idempotency-key',
     fetchImpl: async (url, options) => {
       calls.push({ url, options });
@@ -94,6 +98,7 @@ test('resetHwidByUserId posts to the customer HWID endpoint with bearer auth and
   assert.deepEqual(calls[0].options.headers, {
     Authorization: 'Bearer test-key',
     'Idempotency-Key': 'fixed-idempotency-key',
+    'x-playsharp-reseller-api-version': '2026-05-22.6',
   });
   assert.equal(calls[0].options.body, undefined);
 });
@@ -102,6 +107,7 @@ test('resetHwidByUserId throws updated reseller API errors with their message', 
   const client = createResellerApiClient({
     baseUrl: 'https://playsharp.example.com/api/reseller/v1',
     apiKey: 'test-key',
+    apiVersion: '2026-05-22.6',
     fetchImpl: async () => ({
       ok: false,
       status: 403,
@@ -129,6 +135,7 @@ test('generateLoaderForUserId posts a loader build with bearer auth and idempote
     baseUrl: 'https://noaserver.com/resellerApi',
     loaderBuildsBaseUrl: 'https://playsharp.example.com/api/reseller/v1',
     apiKey: 'test-key',
+    apiVersion: '2026-05-22.6',
     idempotencyKeyFactory: () => 'fixed-idempotency-key',
     fetchImpl: async (url, options) => {
       calls.push({ url, options });
@@ -205,6 +212,7 @@ test('generateLoaderForUserId posts a loader build with bearer auth and idempote
     Authorization: 'Bearer test-key',
     'Content-Type': 'application/json',
     'Idempotency-Key': 'fixed-idempotency-key',
+    'x-playsharp-reseller-api-version': '2026-05-22.6',
   });
   assert.deepEqual(JSON.parse(calls[0].options.body), {
     userId: 'user_123',
@@ -222,6 +230,7 @@ test('generateLoaderForUserId falls back to the latest user loader build when cr
     baseUrl: 'https://noaserver.com/resellerApi',
     loaderBuildsBaseUrl: 'https://playsharp.example.com/api/reseller/v1',
     apiKey: 'test-key',
+    apiVersion: '2026-05-22.6',
     idempotencyKeyFactory: () => 'fixed-idempotency-key',
     fetchImpl: async (url, options) => {
       calls.push({ url, options });
@@ -300,6 +309,7 @@ test('getActiveLicensesByUserId returns only active licenses for a customer', as
   const client = createResellerApiClient({
     baseUrl: 'https://playsharp.example.com/api/reseller/v1',
     apiKey: 'test-key',
+    apiVersion: '2026-05-22.6',
     fetchImpl: async (url, options) => {
       calls.push({ url, options });
       return {
@@ -350,10 +360,11 @@ test('generateLoaderForUserId passes a 6 minute abort signal timeout to long-run
 
   try {
     const calls = [];
-    const client = createResellerApiClient({
+  const client = createResellerApiClient({
       baseUrl: 'https://noaserver.com/resellerApi',
       loaderBuildsBaseUrl: 'https://playsharp.example.com/api/reseller/v1',
       apiKey: 'test-key',
+      apiVersion: '2026-05-22.6',
       generateLoaderTimeoutMs: 360000,
       fetchImpl: async (_url, options) => {
         calls.push(options);
@@ -393,9 +404,10 @@ test('getUserIdByUsername does not attach the long loader timeout signal', async
 
   try {
     const calls = [];
-    const client = createResellerApiClient({
+  const client = createResellerApiClient({
       baseUrl: 'https://noaserver.com/resellerApi',
       apiKey: 'test-key',
+      apiVersion: '2026-05-22.6',
       generateLoaderTimeoutMs: 360000,
       fetchImpl: async (_url, options) => {
         calls.push(options);
