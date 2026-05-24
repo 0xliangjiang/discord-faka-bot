@@ -36,7 +36,7 @@ cp .env.example .env
 - `RESELLER_API_BASE_URL`：旧版 Reseller API 地址，用于查用户和生成加载器
 - `RESET_HWID_API_BASE_URL`：新版解绑 HWID API 地址，例如 `https://playsharp.example.com/api/reseller/v1`；不配置时沿用 `RESELLER_API_BASE_URL`
 - `LOADER_BUILDS_API_BASE_URL`：新版 loader builds API 地址，例如 `https://playsharp.example.com/api/reseller/v1`；不配置时沿用 `RESET_HWID_API_BASE_URL`
-- `PLAYSHARP_RESELLER_API_VERSION`：PlaySharp Reseller API 版本请求头，默认 `2026-05-22.6`
+- `PLAYSHARP_RESELLER_API_VERSION`：PlaySharp Reseller API 版本请求头，默认 `2026-05-22.7`
 - `ALLOWED_DISCORD_USER_IDS`：允许使用命令的 Discord 用户 ID，多个逗号分隔；不配置时不限制用户
 - `ALLOWED_DISCORD_CHANNEL_IDS`：允许使用命令的 Discord 频道 ID，多个逗号分隔；不配置时不限制频道
 - `AUDIT_LOG_FILE_PATH`：审计日志文件路径，默认 `logs/audit.log`

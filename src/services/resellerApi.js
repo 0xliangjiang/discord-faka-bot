@@ -14,7 +14,7 @@ function createResellerApiClient({
   resetHwidBaseUrl = baseUrl,
   loaderBuildsBaseUrl = resetHwidBaseUrl,
   apiKey,
-  apiVersion = '2026-05-22.6',
+  apiVersion = '2026-05-22.7',
   fetchImpl = globalThis.fetch,
   generateLoaderTimeoutMs = 360000,
   idempotencyKeyFactory = randomUUID,

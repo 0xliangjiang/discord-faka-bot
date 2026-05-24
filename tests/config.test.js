@@ -12,7 +12,7 @@ test('loadConfig parses env vars and allowed Discord user/channel IDs', () => {
     RESELLER_API_BASE_URL: 'https://noaserver.com/resellerApi',
     RESET_HWID_API_BASE_URL: 'https://playsharp.example.com/api/reseller/v1',
     LOADER_BUILDS_API_BASE_URL: 'https://playsharp.example.com/api/reseller/v1',
-    PLAYSHARP_RESELLER_API_VERSION: '2026-05-22.6',
+    PLAYSHARP_RESELLER_API_VERSION: '2026-05-22.7',
     ALLOWED_DISCORD_USER_IDS: '111, 222 ,333',
     ALLOWED_DISCORD_CHANNEL_IDS: '444, 555 ,666',
     AUDIT_LOG_FILE_PATH: 'logs/audit.log',
@@ -28,7 +28,7 @@ test('loadConfig parses env vars and allowed Discord user/channel IDs', () => {
     resellerApiBaseUrl: 'https://noaserver.com/resellerApi',
     resetHwidApiBaseUrl: 'https://playsharp.example.com/api/reseller/v1',
     loaderBuildsApiBaseUrl: 'https://playsharp.example.com/api/reseller/v1',
-    playsharpResellerApiVersion: '2026-05-22.6',
+    playsharpResellerApiVersion: '2026-05-22.7',
     allowedDiscordUserIds: ['111', '222', '333'],
     allowedDiscordChannelIds: ['444', '555', '666'],
     auditLogFilePath: 'logs/audit.log',
@@ -82,7 +82,7 @@ test('loadConfig uses defaults for optional settings when omitted', () => {
   assert.equal(config.resellerApiBaseUrl, 'https://noaserver.com/resellerApi');
   assert.equal(config.resetHwidApiBaseUrl, 'https://noaserver.com/resellerApi');
   assert.equal(config.loaderBuildsApiBaseUrl, 'https://noaserver.com/resellerApi');
-  assert.equal(config.playsharpResellerApiVersion, '2026-05-22.6');
+  assert.equal(config.playsharpResellerApiVersion, '2026-05-22.7');
   assert.equal(config.auditLogFilePath, 'logs/audit.log');
   assert.equal(config.auditChannelId, null);
   assert.equal(config.generateLoaderTimeoutMs, 360000);

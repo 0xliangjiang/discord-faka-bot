@@ -1,7 +1,7 @@
 const DEFAULT_RESELLER_API_BASE_URL = 'https://noaserver.com/resellerApi';
 const DEFAULT_AUDIT_LOG_FILE_PATH = 'logs/audit.log';
 const DEFAULT_GENERATE_LOADER_TIMEOUT_MS = 360000;
-const DEFAULT_PLAYSHARP_RESELLER_API_VERSION = '2026-05-22.6';
+const DEFAULT_PLAYSHARP_RESELLER_API_VERSION = '2026-05-22.7';
 
 function parsePositiveInteger(value, keyName) {
   const parsed = Number.parseInt(value, 10);
