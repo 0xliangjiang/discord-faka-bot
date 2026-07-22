@@ -8,7 +8,6 @@ test('getUserIdByUsername returns a user id from reseller API customers lookup',
   const client = createResellerApiClient({
     baseUrl: 'https://playsharp.example.com/api/reseller/v1',
     apiKey: 'test-key',
-    apiVersion: '2026-05-22.7',
     fetchImpl: async (url, options) => {
       calls.push({ url, options });
       return {
@@ -37,7 +36,7 @@ test('getUserIdByUsername returns a user id from reseller API customers lookup',
   assert.equal(calls[0].options.method, 'GET');
   assert.deepEqual(calls[0].options.headers, {
     Authorization: 'Bearer test-key',
-    'x-playsharp-reseller-api-version': '2026-05-22.7',
+    'x-playsharp-reseller-api-version': '2026-07-16.2',
   });
   assert.equal(calls[0].options.body, undefined);
   assert.equal(calls[0].options.signal, undefined);

@@ -79,10 +79,10 @@ test('loadConfig uses defaults for optional settings when omitted', () => {
   });
 
   assert.deepEqual(config.allowedDiscordChannelIds, []);
-  assert.equal(config.resellerApiBaseUrl, 'https://noaserver.com/resellerApi');
-  assert.equal(config.resetHwidApiBaseUrl, 'https://noaserver.com/resellerApi');
-  assert.equal(config.loaderBuildsApiBaseUrl, 'https://noaserver.com/resellerApi');
-  assert.equal(config.playsharpResellerApiVersion, '2026-05-22.7');
+  assert.equal(config.resellerApiBaseUrl, 'https://playsharp.io/api/reseller/v1');
+  assert.equal(config.resetHwidApiBaseUrl, 'https://playsharp.io/api/reseller/v1');
+  assert.equal(config.loaderBuildsApiBaseUrl, 'https://playsharp.io/api/reseller/v1');
+  assert.equal(config.playsharpResellerApiVersion, '2026-07-16.2');
   assert.equal(config.auditLogFilePath, 'logs/audit.log');
   assert.equal(config.auditChannelId, null);
   assert.equal(config.generateLoaderTimeoutMs, 360000);

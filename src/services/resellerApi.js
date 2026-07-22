@@ -1,4 +1,5 @@
 const { randomUUID } = require('node:crypto');
+const { DEFAULT_PLAYSHARP_RESELLER_API_VERSION } = require('../config');
 
 class ResellerApiError extends Error {
   constructor(message, statusCode, responseBody) {
@@ -14,7 +15,7 @@ function createResellerApiClient({
   resetHwidBaseUrl = baseUrl,
   loaderBuildsBaseUrl = resetHwidBaseUrl,
   apiKey,
-  apiVersion = '2026-05-22.7',
+  apiVersion = DEFAULT_PLAYSHARP_RESELLER_API_VERSION,
   fetchImpl = globalThis.fetch,
   generateLoaderTimeoutMs = 360000,
   idempotencyKeyFactory = randomUUID,
@@ -57,32 +58,6 @@ function createResellerApiClient({
       'x-playsharp-reseller-api-version': apiVersion,
       ...extraHeaders,
     };
-  }
-
-  async function post(payload, extraOptions = {}) {
-    const response = await fetchImpl(baseUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-      },
-      body: JSON.stringify(payload),
-      ...extraOptions,
-    });
-
-    let data;
-    try {
-      data = await response.json();
-    } catch (_error) {
-      throw new ResellerApiError('Reseller API returned invalid JSON', response.status);
-    }
-
-    const status = data?.status;
-    if (!response.ok || status?.error) {
-      throw new ResellerApiError(status?.message || 'Reseller API request failed', response.status, data);
-    }
-
-    return data;
   }
 
   async function postHwidReset(userId) {
