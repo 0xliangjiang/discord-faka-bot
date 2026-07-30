@@ -82,7 +82,7 @@ test('loadConfig uses defaults for optional settings when omitted', () => {
   assert.equal(config.resellerApiBaseUrl, 'https://playsharp.io/api/reseller/v1');
   assert.equal(config.resetHwidApiBaseUrl, 'https://playsharp.io/api/reseller/v1');
   assert.equal(config.loaderBuildsApiBaseUrl, 'https://playsharp.io/api/reseller/v1');
-  assert.equal(config.playsharpResellerApiVersion, '2026-07-16.2');
+  assert.equal(config.playsharpResellerApiVersion, '2026-07-29.1');
   assert.equal(config.auditLogFilePath, 'logs/audit.log');
   assert.equal(config.auditChannelId, null);
   assert.equal(config.generateLoaderTimeoutMs, 360000);

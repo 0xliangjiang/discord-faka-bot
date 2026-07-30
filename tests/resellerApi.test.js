@@ -36,7 +36,7 @@ test('getUserIdByUsername returns a user id from reseller API customers lookup',
   assert.equal(calls[0].options.method, 'GET');
   assert.deepEqual(calls[0].options.headers, {
     Authorization: 'Bearer test-key',
-    'x-playsharp-reseller-api-version': '2026-07-16.2',
+    'x-playsharp-reseller-api-version': '2026-07-29.1',
   });
   assert.equal(calls[0].options.body, undefined);
   assert.equal(calls[0].options.signal, undefined);

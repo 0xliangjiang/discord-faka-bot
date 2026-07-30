@@ -1,7 +1,7 @@
 const DEFAULT_RESELLER_API_BASE_URL = 'https://playsharp.io/api/reseller/v1';
 const DEFAULT_AUDIT_LOG_FILE_PATH = 'logs/audit.log';
 const DEFAULT_GENERATE_LOADER_TIMEOUT_MS = 360000;
-const DEFAULT_PLAYSHARP_RESELLER_API_VERSION = '2026-07-16.2';
+const DEFAULT_PLAYSHARP_RESELLER_API_VERSION = '2026-07-29.1';
 
 function parsePositiveInteger(value, keyName) {
   const parsed = Number.parseInt(value, 10);
